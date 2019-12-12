@@ -11,9 +11,11 @@ Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 #define GAME_WAIT 0
 #define GAME_RUN 1
 #define GAME_SCORE 2
+#define GAME_RESET 3
 int game_state = GAME_WAIT;
 
 // the game
+#define ERROR_PERCENT 10
 bool successful[LED_COUNT];
 int committed = 0;
 #define STRIDE 6
@@ -26,7 +28,7 @@ bool key_pressed = false;
 
 // for random outcome of work packages
 bool random_bit() {
-  return !(player_pos%3);
+  return random(100) > ERROR_PERCENT;
 }
 
 
@@ -75,9 +77,11 @@ bool game_raster() {
 }
 
 bool score_animation_done() {
+  delay(2000);
   return true;
 }
 void setup() {
+  randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
   strip.show();
   pinMode(LED_PIN, OUTPUT) ;
@@ -98,6 +102,7 @@ void loop() {
   switch ( game_state )
   {
     case GAME_WAIT:
+      strip.fill(strip.Color(0,0,0), 0, LED_COUNT);
       if ( key_pressed ) {
         key_pressed=false;
         game_state=GAME_RUN;
@@ -112,9 +117,16 @@ void loop() {
     case GAME_SCORE:
       key_pressed=false;
       if ( score_animation_done() ) {
-          game_state = GAME_WAIT;
+          game_state = GAME_RESET;
           committed=player_pos=0;
+          key_pressed=false;
       }
       break;
+    case GAME_RESET:
+      key_pressed=false;
+      game_raster();
+      if (player_pos<=0) {
+        game_state = GAME_WAIT;
+      }
   }
 }
