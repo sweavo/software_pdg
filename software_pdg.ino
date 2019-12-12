@@ -26,14 +26,18 @@ bool key_pressed = false;
 
 // for random outcome of work packages
 bool random_bit() {
-  return (random(0.0, 1.0) > 0.5);
+  return !(player_pos%3);
 }
 
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
-  // TODO use color
-  strip.setPixelColor( posn, 20, 20, 80 );
+  if ( successful[posn] ){
+    strip.setPixelColor( posn, 20, 20, 80 );
+  } else {
+    strip.setPixelColor( posn, 40, 0, 0 );
+    
+  }
 }
 
 void extinguish_led( int posn ) {
