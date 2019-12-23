@@ -31,13 +31,17 @@ bool random_bit() {
   return random(100) > ERROR_PERCENT;
 }
 
+#define COLOR_ETAS_BLUE strip.Color(20, 20, 80)
+#define COLOR_BLACK strip.Color(0,0,0)
+#define COLOR_WORKPACKAGE_OK COLOR_ETAS_BLUE
+#define COLOR_WORKPACKAGE_FAIL strip.Color(40, 0, 0)
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
   if ( successful[posn] ){
-    strip.setPixelColor( posn, 20, 20, 80 );
+    strip.setPixelColor( posn, COLOR_WORKPACKAGE_OK);
   } else {
-    strip.setPixelColor( posn, 40, 0, 0 );
+    strip.setPixelColor( posn, COLOR_WORKPACKAGE_FAIL );
     
   }
 }
@@ -102,7 +106,7 @@ void loop() {
   switch ( game_state )
   {
     case GAME_WAIT:
-      strip.fill(strip.Color(0,0,0), 0, LED_COUNT);
+      strip.fill(COLOR_BLACK, 0, LED_COUNT);
       if ( key_pressed ) {
         key_pressed=false;
         game_state=GAME_RUN;
