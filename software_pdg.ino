@@ -4,6 +4,10 @@
 #define LED_COUNT 30
 
 #define BUTTON_PIN 10
+#define BUTTON_ACTIVE_LOW 1
+
+#define PIEZO_PIN 9
+
 #define LED_PIN   LED_BUILTIN
 
 Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
@@ -103,13 +107,25 @@ void setup() {
   randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
   strip.show();
-  pinMode(LED_PIN, OUTPUT) ;
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUTTON_PIN,INPUT_PULLUP);
+  pinMode(PIEZO_PIN, OUTPUT);
 }
+
+void beep(unsigned char period)
+{
+  analogWrite(PIEZO_PIN,20);
+  delay( period/2);
+  analogWrite(PIEZO_PIN,0);
+  delay( period/2);
+}
+
 
 void loop() {
   // key_pressed can be reset by the reader. key_down is used to detect edges
-  if ( digitalRead( BUTTON_PIN ) ) {
+  if ( digitalRead( BUTTON_PIN ) ^ BUTTON_ACTIVE_LOW ) { // active low
     if ( !key_down ) {
+      beep(60);
       key_down = true;
       key_pressed = true;
     }
@@ -118,6 +134,8 @@ void loop() {
       key_down = false;
     }
   }
+
+  // Overall state
   switch ( game_state )
   {
     case GAME_WAIT:
@@ -141,6 +159,7 @@ void loop() {
           key_pressed=false;
       }
       break;
+      
     case GAME_RESET:
       key_pressed=false;
       game_raster();
@@ -148,4 +167,4 @@ void loop() {
         game_state = GAME_WAIT;
       }
   }
-}
+} 
