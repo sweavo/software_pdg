@@ -49,7 +49,7 @@ void light_led( int posn ) {
 }
 
 void extinguish_led( int posn ) {
-  strip.setPixelColor( posn, 0, 0, 0 );
+  strip.setPixelColor( posn, COLOR_BLACK );
 }
 
 bool game_raster() {
@@ -81,11 +81,16 @@ bool game_raster() {
   strip.show();
   return false;
 }
-
 bool score_animation_done() {
   static uint8_t i=0;
   strip.setPixelColor( i, COLOR_WHITE );
-  delay(100);
+  strip.show();
+  delay(10);
+  strip.setPixelColor( i, COLOR_BLACK);
+  strip.show();
+  delay(10);
+  light_led( i );
+  delay(10);
   if (++i >= LED_COUNT )
   {
     i=0;
