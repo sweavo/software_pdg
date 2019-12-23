@@ -31,10 +31,12 @@ bool random_bit() {
   return random(100) > ERROR_PERCENT;
 }
 
-#define COLOR_ETAS_BLUE strip.Color(20, 20, 80)
+#define BRIGHTNESS_DIVIDER 4
+#define COLOR_ETAS_BLUE strip.Color(20/BRIGHTNESS_DIVIDER, 20/BRIGHTNESS_DIVIDER, 80/BRIGHTNESS_DIVIDER)
 #define COLOR_BLACK strip.Color(0,0,0)
+#define COLOR_WHITE strip.Color(40/BRIGHTNESS_DIVIDER,40/BRIGHTNESS_DIVIDER,40/BRIGHTNESS_DIVIDER)
 #define COLOR_WORKPACKAGE_OK COLOR_ETAS_BLUE
-#define COLOR_WORKPACKAGE_FAIL strip.Color(40, 0, 0)
+#define COLOR_WORKPACKAGE_FAIL strip.Color(40/BRIGHTNESS_DIVIDER, 0, 0)
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
@@ -81,9 +83,17 @@ bool game_raster() {
 }
 
 bool score_animation_done() {
-  delay(2000);
-  return true;
+  static uint8_t i=0;
+  strip.setPixelColor( i, COLOR_WHITE );
+  delay(100);
+  if (++i >= LED_COUNT )
+  {
+    i=0;
+    return true;
+  }
+  return false;
 }
+
 void setup() {
   randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
