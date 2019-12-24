@@ -38,6 +38,12 @@
 //// Sounds
 #define PITCH_KEYPRESS 523
 #define DURATION_KEYPRESS 50
+#define PITCH_BOTTOM 440
+#define DURATION_BOTTOM 50
+#define PITCH_TOP 880
+#define DURATION_TOP 50
+#define PITCH_BAD 220
+#define DURATION_BAD 50
 
 // Tuning values for the game 
 #define ERROR_PERCENT 10
@@ -111,9 +117,14 @@ bool game_raster() {
     digitalWrite( LED_PIN, 1 );
     ++player_pos;
     successful[player_pos] = random_bit();
+    if (!successful[player_pos])
+    {
+      beep( PITCH_BAD, DURATION_BAD );
+    }
     light_led( player_pos );
     if ( ( player_pos > LED_COUNT )
          || ( player_pos > (committed + STRIDE ) ) ) {
+      beep_for_posn( player_pos );
       player_dir = -1;
     }
   } else {
@@ -121,6 +132,7 @@ bool game_raster() {
     extinguish_led( player_pos );
     player_pos--;
     if ( player_pos < committed ) {
+      beep_for_posn( player_pos );
       player_dir = 1;
     }
   }
@@ -150,6 +162,11 @@ void beep( unsigned int frequency, unsigned long duration )
 {
   noTone(PIEZO_PIN);
   tone(PIEZO_PIN, frequency, duration);
+}
+
+void beep_for_posn( uint8_t posn )
+{
+  beep( PITCH_BOTTOM + ((PITCH_TOP - PITCH_BOTTOM ) * posn ) / LED_COUNT, 50 );
 }
 
 void loop() {
