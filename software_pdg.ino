@@ -7,7 +7,7 @@
 #define STRIP_PIN 4
 #define LED_COUNT 30
 
-// Pushbutton to play the game.  If active high, then 
+// Pushbutton to play the game.  If active high, then
 // set BUTTON_ACTIVE_LOW to 0 and deal with pulldown as
 // you need to.  If active low, then setup() will activate
 // the input's builtin pullup resistor.
@@ -45,7 +45,7 @@
 #define PITCH_BAD 220
 #define DURATION_BAD 50
 
-// Tuning values for the game 
+// Tuning values for the game
 #define ERROR_PERCENT 10
 #define STRIDE 6
 
@@ -79,11 +79,11 @@ Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
-  if ( successful[posn] ){
+  if ( successful[posn] ) {
     strip.setPixelColor( posn, COLOR_WORKPACKAGE_OK);
   } else {
     strip.setPixelColor( posn, COLOR_WORKPACKAGE_FAIL );
-    
+
   }
 }
 
@@ -96,11 +96,11 @@ void setup() {
   strip.begin();
   strip.show();
   pinMode(LED_PIN, OUTPUT);
-  #if BUTTON_ACTIVE_LOW==1
-  pinMode(BUTTON_PIN,INPUT_PULLUP);
-  #else
-  pinMode(BUTTON_PIN,INPUT);
-  #endif
+#if BUTTON_ACTIVE_LOW==1
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+#else
+  pinMode(BUTTON_PIN, INPUT);
+#endif
   pinMode(PIEZO_PIN, OUTPUT);
 }
 
@@ -108,7 +108,7 @@ bool game_raster() {
   if (key_pressed ) {
     key_pressed = false;
     committed = player_pos;
-    if (committed >= LED_COUNT-1 )
+    if (committed >= LED_COUNT - 1 )
     {
       return true;
     }
@@ -141,7 +141,7 @@ bool game_raster() {
 }
 
 bool score_animation_done() {
-  static uint8_t i=0;
+  static uint8_t i = 0;
   strip.setPixelColor( i, COLOR_WHITE );
   strip.show();
   delay(10);
@@ -152,7 +152,7 @@ bool score_animation_done() {
   delay(10);
   if (++i >= LED_COUNT )
   {
-    i=0;
+    i = 0;
     return true;
   }
   return false;
@@ -173,8 +173,7 @@ void loop() {
   // key_pressed can be reset by the reader. key_down is used to detect edges
   if ( digitalRead( BUTTON_PIN ) ^ BUTTON_ACTIVE_LOW ) { // active low
     if ( !key_down ) {
-        beep( PITCH_KEYPRESS, DURATION_KEYPRESS );
-
+      beep( PITCH_KEYPRESS, DURATION_KEYPRESS );
       key_down = true;
       key_pressed = true;
     }
@@ -190,30 +189,32 @@ void loop() {
     case GAME_WAIT:
       strip.fill(COLOR_BLACK, 0, LED_COUNT);
       if ( key_pressed ) {
-        key_pressed=false;
-        game_state=GAME_RUN;
+        key_pressed = false;
+        game_state = GAME_RUN;
       }
       break;
 
     case GAME_RUN:
-      if ( game_raster() ) { game_state = GAME_SCORE; }
+      if ( game_raster() ) {
+        game_state = GAME_SCORE;
+      }
       delay(20);
       break;
 
     case GAME_SCORE:
-      key_pressed=false;
+      key_pressed = false;
       if ( score_animation_done() ) {
-          game_state = GAME_RESET;
-          committed=player_pos=0;
-          key_pressed=false;
+        game_state = GAME_RESET;
+        committed = player_pos = 0;
+        key_pressed = false;
       }
       break;
-      
+
     case GAME_RESET:
-      key_pressed=false;
+      key_pressed = false;
       game_raster();
-      if (player_pos<=0) {
+      if (player_pos <= 0) {
         game_state = GAME_WAIT;
       }
   }
-} 
+}
