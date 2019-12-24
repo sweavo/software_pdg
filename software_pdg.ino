@@ -35,6 +35,9 @@
 //// Semantic colors
 #define COLOR_WORKPACKAGE_OK COLOR_ETAS_BLUE
 #define COLOR_WORKPACKAGE_FAIL COLOR_RED
+//// Sounds
+#define PITCH_KEYPRESS 523
+#define DURATION_KEYPRESS 50
 
 // Tuning values for the game 
 #define ERROR_PERCENT 10
@@ -65,13 +68,6 @@ bool random_bit() {
   return random(100) > ERROR_PERCENT;
 }
 
-void beep(unsigned char period)
-{
-  analogWrite(PIEZO_PIN,20);
-  delay( period/2);
-  analogWrite(PIEZO_PIN,0);
-  delay( period/2);
-}
 
 Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -150,11 +146,18 @@ bool score_animation_done() {
   return false;
 }
 
+void beep( unsigned int frequency, unsigned long duration )
+{
+  noTone(PIEZO_PIN);
+  tone(PIEZO_PIN, frequency, duration);
+}
+
 void loop() {
   // key_pressed can be reset by the reader. key_down is used to detect edges
   if ( digitalRead( BUTTON_PIN ) ^ BUTTON_ACTIVE_LOW ) { // active low
     if ( !key_down ) {
-      beep(60);
+        beep( PITCH_KEYPRESS, DURATION_KEYPRESS );
+
       key_down = true;
       key_pressed = true;
     }
