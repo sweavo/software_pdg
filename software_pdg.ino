@@ -53,6 +53,7 @@
 #define ERROR_PERCENT 10
 #define STRIDE 6
 #define DELAY_STEP 20
+#define GAME_TIMEOUT_TICKS (6000/DELAY_STEP)
 
 // End of tuning parameters
 //////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +142,8 @@ bool game_raster() {
     }
   }
   strip.show();
-  return false;
+  delay(DELAY_STEP);
+  return GAME_RUN;
 }
 
 bool score_animation_done() {
@@ -199,13 +201,7 @@ void loop() {
       break;
 
     case GAME_RUN:
-      if ( game_raster() ) {
-        game_state = GAME_SCORE;
-      }
-      else
-      {
-        delay(DELAY_STEP);
-      }
+      game_state = game_raster();
       break;
 
     case GAME_SCORE:
@@ -221,10 +217,25 @@ void loop() {
 }
 
 bool game_reset() {
-  strip.fill( COLOR_RESET, 0, LED_COUNT );
-  key_pressed = false;
-  committed = 0;
-  player_pos = 0;
-  player_dir = 1;
-  return true;
+  static uint8_t cap=200/BRIGHTNESS_DIVIDER;
+ 
+  strip.fill( strip.Color( min( cap, 30/BRIGHTNESS_DIVIDER), 
+                           min( cap, 83/BRIGHTNESS_DIVIDER), 
+                           min( cap, 158/BRIGHTNESS_DIVIDER)), 0, player_pos);
+  strip.show();
+  delay(DELAY_STEP/2);
+  if (--cap)
+  {
+    return false;
+  }
+  else
+  {
+    strip.fill( COLOR_RESET, 0, LED_COUNT );
+    strip.show();    key_pressed = false;
+    committed = 0;
+    player_pos = 0;
+    player_dir = 1;
+    cap=100;
+    return true;
+  }
 }
