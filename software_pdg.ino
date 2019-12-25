@@ -61,6 +61,7 @@
 #define GAME_WAIT 0
 #define GAME_RUN 1
 #define GAME_SCORE 2
+#define GAME_RESET 3
 
 int game_state = GAME_WAIT;
 
@@ -209,17 +210,21 @@ void loop() {
 
     case GAME_SCORE:
       if ( score_animation_done() ) {
-        game_reset();
-        game_state = GAME_WAIT;
+        game_state = GAME_RESET;
       }
       break;
+
+    case GAME_RESET:
+      if (game_reset()) game_state = GAME_WAIT;
+
   }
 }
 
-void game_reset() {
+bool game_reset() {
   strip.fill( COLOR_RESET, 0, LED_COUNT );
   key_pressed = false;
   committed = 0;
   player_pos = 0;
   player_dir = 1;
+  return true;
 }
