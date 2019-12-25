@@ -38,10 +38,9 @@
 //// Sounds
 #define PITCH_KEYPRESS 523
 #define DURATION_KEYPRESS 50
-#define PITCH_BOTTOM 440
-#define DURATION_BOTTOM 50
-#define PITCH_TOP 880
-#define DURATION_TOP 50
+#define PITCH_BOTTOM_STEP 440
+#define PITCH_TOP_STEP 880
+#define DURATION_STEP 10
 #define PITCH_BAD 220
 #define DURATION_BAD 50
 
@@ -165,7 +164,7 @@ void beep( unsigned int frequency, unsigned long duration )
 
 void beep_for_posn( uint8_t posn )
 {
-  beep( PITCH_BOTTOM + ((PITCH_TOP - PITCH_BOTTOM ) * posn ) / LED_COUNT, 50 );
+  beep( PITCH_BOTTOM_STEP + ((PITCH_TOP_STEP - PITCH_BOTTOM_STEP ) * posn ) / LED_COUNT, DURATION_STEP );
 }
 
 void loop() {
