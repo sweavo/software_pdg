@@ -114,7 +114,6 @@ bool game_raster() {
     }
   }
   if ( player_dir > 0 ) {
-    digitalWrite( LED_PIN, 1 );
     ++player_pos;
     successful[player_pos] = random_bit();
     if (!successful[player_pos])
@@ -128,7 +127,6 @@ bool game_raster() {
       player_dir = -1;
     }
   } else {
-    digitalWrite( LED_PIN, 0 );
     extinguish_led( player_pos );
     player_pos--;
     if ( player_pos < committed ) {
