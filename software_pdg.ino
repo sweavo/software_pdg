@@ -48,6 +48,7 @@
 // Tuning values for the game
 #define ERROR_PERCENT 10
 #define STRIDE 6
+#define DELAY_STEP 20
 
 // End of tuning parameters
 //////////////////////////////////////////////////////////////////////////////////
@@ -196,7 +197,7 @@ void loop() {
       if ( game_raster() ) {
         game_state = GAME_SCORE;
       }
-      delay(20);
+      delay(DELAY_STEP);
       break;
 
     case GAME_SCORE:
