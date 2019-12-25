@@ -61,7 +61,7 @@
 #define GAME_WAIT 0
 #define GAME_RUN 1
 #define GAME_SCORE 2
-#define GAME_RESET 3
+
 int game_state = GAME_WAIT;
 
 // State used while playing the game
@@ -201,23 +201,25 @@ void loop() {
       if ( game_raster() ) {
         game_state = GAME_SCORE;
       }
-      delay(DELAY_STEP);
+      else
+      {
+        delay(DELAY_STEP);
+      }
       break;
 
     case GAME_SCORE:
-      key_pressed = false;
       if ( score_animation_done() ) {
-        game_state = GAME_RESET;
-        committed = player_pos = 0;
-        key_pressed = false;
-      }
-      break;
-
-    case GAME_RESET:
-      key_pressed = false;
-      game_raster();
-      if (player_pos <= 0) {
+        game_reset();
         game_state = GAME_WAIT;
       }
+      break;
   }
+}
+
+void game_reset() {
+  strip.fill( COLOR_RESET, 0, LED_COUNT );
+  key_pressed = false;
+  committed = 0;
+  player_pos = 0;
+  player_dir = 1;
 }
