@@ -53,18 +53,19 @@
 #define ERROR_PERCENT 10
 #define STRIDE 6
 #define DELAY_STEP 20
-#define GAME_TIMEOUT_TICKS (6000/DELAY_STEP)
+#define GAME_TIMEOUT_TICKS (5000/DELAY_STEP)
 
 // End of tuning parameters
 //////////////////////////////////////////////////////////////////////////////////
 
 // Top-level states
-#define GAME_WAIT 0
-#define GAME_RUN 1
-#define GAME_SCORE 2
-#define GAME_RESET 3
+typedef uint8_t GameState_t;
+#define GAME_WAIT ((GameState_t)0)
+#define GAME_RUN ((GameState_t)1)
+#define GAME_SCORE ((GameState_t)2)
+#define GAME_RESET ((GameState_t)3)
 
-int game_state = GAME_WAIT;
+GameState_t game_state = GAME_WAIT;
 
 // State used while playing the game
 bool successful[LED_COUNT];
@@ -101,7 +102,7 @@ void extinguish_led( int posn ) {
 void setup() {
   randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
-  strip.fill(COLOR_RESET,0,LED_COUNT);
+  strip.fill(COLOR_RESET, 0, LED_COUNT);
   strip.show();
   pinMode(LED_PIN, OUTPUT);
 #if BUTTON_ACTIVE_LOW==1
@@ -112,15 +113,25 @@ void setup() {
   pinMode(PIEZO_PIN, OUTPUT);
 }
 
-bool game_raster() {
+GameState_t game_raster() {
+  static uint16_t timeout = 0;
+
   if (key_pressed ) {
+    timeout = 0;
     key_pressed = false;
     committed = player_pos;
     if (committed >= LED_COUNT - 1 )
     {
-      return true;
+      timeout = 0;
+      return GAME_SCORE;
     }
   }
+  if (++timeout > GAME_TIMEOUT_TICKS )
+  {
+    timeout = 0;
+    return GAME_RESET;
+  }
+
   if ( player_dir > 0 ) {
     ++player_pos;
     successful[player_pos] = random_bit();
@@ -137,7 +148,7 @@ bool game_raster() {
   } else {
     extinguish_led( player_pos );
     player_pos--;
-    if ( player_pos < committed ) {
+    if ( player_pos <= committed ) {
       beep_for_posn( player_pos );
       player_dir = 1;
     }
@@ -218,13 +229,13 @@ void loop() {
 }
 
 bool game_reset() {
-  static uint8_t cap=200/BRIGHTNESS_DIVIDER;
- 
-  strip.fill( strip.Color( min( cap, 30/BRIGHTNESS_DIVIDER), 
-                           min( cap, 83/BRIGHTNESS_DIVIDER), 
-                           min( cap, 158/BRIGHTNESS_DIVIDER)), 0, player_pos);
+  static uint8_t cap = 200 / BRIGHTNESS_DIVIDER;
+
+  strip.fill( strip.Color( min( cap, 30 / BRIGHTNESS_DIVIDER),
+                           min( cap, 83 / BRIGHTNESS_DIVIDER),
+                           min( cap, 158 / BRIGHTNESS_DIVIDER)), 0, player_pos);
   strip.show();
-  delay(DELAY_STEP/2);
+  delay(DELAY_STEP / 2);
   if (--cap)
   {
     return false;
@@ -236,7 +247,7 @@ bool game_reset() {
     committed = 0;
     player_pos = 0;
     player_dir = 1;
-    cap=100;
+    cap = 100;
     return true;
   }
 }
