@@ -25,16 +25,21 @@
 // Tuning parameters
 
 // "Stylesheet"
-//// Globally dim values, so that you can work on the program without getting a migraine.
+
+//// Globally dim LEDs, so that you can work on the program without getting a migraine.
 #define BRIGHTNESS_DIVIDER 4
+
 //// Theme Colors
 #define COLOR_ETAS_BLUE strip.Color(20/BRIGHTNESS_DIVIDER, 20/BRIGHTNESS_DIVIDER, 80/BRIGHTNESS_DIVIDER)
 #define COLOR_BLACK strip.Color(0,0,0)
 #define COLOR_WHITE strip.Color(40/BRIGHTNESS_DIVIDER,40/BRIGHTNESS_DIVIDER,40/BRIGHTNESS_DIVIDER)
 #define COLOR_RED strip.Color(40/BRIGHTNESS_DIVIDER, 0, 0)
+
 //// Semantic colors
 #define COLOR_WORKPACKAGE_OK COLOR_ETAS_BLUE
 #define COLOR_WORKPACKAGE_FAIL COLOR_RED
+#define COLOR_RESET COLOR_RED
+
 //// Sounds
 #define PITCH_KEYPRESS 523
 #define DURATION_KEYPRESS 50
@@ -185,7 +190,7 @@ void loop() {
   switch ( game_state )
   {
     case GAME_WAIT:
-      strip.fill(COLOR_BLACK, 0, LED_COUNT);
+      strip.fill(COLOR_RESET, 0, LED_COUNT);
       if ( key_pressed ) {
         key_pressed = false;
         game_state = GAME_RUN;
