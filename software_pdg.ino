@@ -126,7 +126,7 @@ bool game_raster() {
       beep( PITCH_BAD, DURATION_BAD );
     }
     light_led( player_pos );
-    if ( ( player_pos > LED_COUNT )
+    if ( ( player_pos >= LED_COUNT )
          || ( player_pos > (committed + STRIDE ) ) ) {
       beep_for_posn( player_pos );
       player_dir = -1;
