@@ -48,6 +48,8 @@
 #define DURATION_STEP 10
 #define PITCH_BAD 220
 #define DURATION_BAD 50
+#define PITCH_SCORE_BAD 110
+#define DURATION_SCORE_BAD 150
 
 // Tuning values for the game
 #define ERROR_PERCENT 10
@@ -72,6 +74,7 @@ bool successful[LED_COUNT];
 int committed = 0;
 int player_pos = 0;
 int player_dir = 1;
+bool finally_perfect = false;
 
 // for latching the button press
 bool key_down = false;
@@ -91,7 +94,6 @@ void light_led( int posn ) {
     strip.setPixelColor( posn, COLOR_WORKPACKAGE_OK);
   } else {
     strip.setPixelColor( posn, COLOR_WORKPACKAGE_FAIL );
-
   }
 }
 
@@ -160,12 +162,21 @@ GameState_t game_raster() {
 
 bool score_animation_done() {
   static uint8_t i = 0;
+  if (!i) {
+    finally_perfect = true;
+  }
   strip.setPixelColor( i, COLOR_WHITE );
   strip.show();
   delay(10);
   strip.setPixelColor( i, COLOR_BLACK);
   strip.show();
   delay(10);
+  if ( !successful[i] )
+  {
+    beep( PITCH_SCORE_BAD, DURATION_SCORE_BAD );
+    finally_perfect = false;
+  }
+
   light_led( i );
   delay(10);
   if (++i >= LED_COUNT )
@@ -230,10 +241,19 @@ void loop() {
 
 bool game_reset() {
   static uint8_t cap = 200 / BRIGHTNESS_DIVIDER;
+  uint32_t color;
+  if (finally_perfect )
+  {
+    color = strip.Color( min( cap, 30 / BRIGHTNESS_DIVIDER),
+                         min( cap, 83 / BRIGHTNESS_DIVIDER),
+                         min( cap, 158 / BRIGHTNESS_DIVIDER));
+  } else {
+    color = strip.Color( min( cap, 80 / BRIGHTNESS_DIVIDER),
+                         min( cap, 0 / BRIGHTNESS_DIVIDER),
+                         min( cap, 0 / BRIGHTNESS_DIVIDER));
+  }
 
-  strip.fill( strip.Color( min( cap, 30 / BRIGHTNESS_DIVIDER),
-                           min( cap, 83 / BRIGHTNESS_DIVIDER),
-                           min( cap, 158 / BRIGHTNESS_DIVIDER)), 0, player_pos);
+  strip.fill( color, 0, player_pos);
   strip.show();
   delay(DELAY_STEP / 2);
   if (--cap)
