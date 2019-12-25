@@ -101,6 +101,7 @@ void extinguish_led( int posn ) {
 void setup() {
   randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
+  strip.fill(COLOR_RESET,0,LED_COUNT);
   strip.show();
   pinMode(LED_PIN, OUTPUT);
 #if BUTTON_ACTIVE_LOW==1
