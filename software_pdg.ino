@@ -72,7 +72,7 @@ GameState_t game_state = GAME_WAIT;
 // State used while playing the game
 bool successful[LED_COUNT];
 int committed = 0;
-int player_pos = 0;
+int player_pos = -1;
 int player_dir = 1;
 bool finally_perfect = false;
 
@@ -82,7 +82,7 @@ bool key_pressed = false;
 
 // for random outcome of work packages
 bool random_bit() {
-  return random(100) > ERROR_PERCENT;
+  return random(100) >= ERROR_PERCENT;
 }
 
 
@@ -265,9 +265,9 @@ bool game_reset() {
     strip.fill( COLOR_RESET, 0, LED_COUNT );
     strip.show();    key_pressed = false;
     committed = 0;
-    player_pos = 0;
+    player_pos = -1;
     player_dir = 1;
-    cap = 100;
+    cap = 200 / BRIGHTNESS_DIVIDER;
     return true;
   }
 }
