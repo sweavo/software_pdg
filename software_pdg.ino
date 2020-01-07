@@ -179,7 +179,7 @@ bool score_animation_done() {
 
   light_led( i );
   delay(10);
-  if (++i >= LED_COUNT )
+  if (++i > LED_COUNT )
   {
     i = 0;
     return true;
@@ -253,7 +253,7 @@ bool game_reset() {
                          min( cap, 0 / BRIGHTNESS_DIVIDER));
   }
 
-  strip.fill( color, 0, player_pos);
+  strip.fill( color, 0, player_pos+1);
   strip.show();
   delay(DELAY_STEP / 2);
   if (--cap)
