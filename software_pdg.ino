@@ -52,7 +52,7 @@
 #define DURATION_SCORE_BAD 150
 
 // Tuning values for the game
-#define ERROR_PERCENT 10
+#define ERROR_PERCENT 0
 #define STRIDE 6
 #define DELAY_STEP 20
 #define GAME_TIMEOUT_TICKS (5000/DELAY_STEP)
@@ -72,7 +72,7 @@ GameState_t game_state = GAME_WAIT;
 // State used while playing the game
 bool successful[LED_COUNT];
 int committed = 0;
-int player_pos = 0;
+int player_pos = -1;
 int player_dir = 1;
 bool finally_perfect = false;
 
@@ -82,7 +82,7 @@ bool key_pressed = false;
 
 // for random outcome of work packages
 bool random_bit() {
-  return random(100) > ERROR_PERCENT;
+  return random(100) >= ERROR_PERCENT;
 }
 
 
@@ -90,11 +90,7 @@ Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
-  if ( successful[posn] ) {
-    strip.setPixelColor( posn, COLOR_WORKPACKAGE_OK);
-  } else {
-    strip.setPixelColor( posn, COLOR_WORKPACKAGE_FAIL );
-  }
+  strip.setPixelColor( posn, successful[posn] ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
 }
 
 void extinguish_led( int posn ) {
@@ -176,10 +172,12 @@ bool score_animation_done() {
     beep( PITCH_SCORE_BAD, DURATION_SCORE_BAD );
     finally_perfect = false;
   }
-
-  light_led( i );
+  
+  strip.setPixelColor( i, finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  //light_led( i );
   delay(10);
-  if (++i >= LED_COUNT )
+  
+  if (++i > LED_COUNT )
   {
     i = 0;
     return true;
@@ -253,7 +251,7 @@ bool game_reset() {
                          min( cap, 0 / BRIGHTNESS_DIVIDER));
   }
 
-  strip.fill( color, 0, player_pos);
+  strip.fill( color, 0, player_pos+1);
   strip.show();
   delay(DELAY_STEP / 2);
   if (--cap)
@@ -265,9 +263,9 @@ bool game_reset() {
     strip.fill( COLOR_RESET, 0, LED_COUNT );
     strip.show();    key_pressed = false;
     committed = 0;
-    player_pos = 0;
+    player_pos = -1;
     player_dir = 1;
-    cap = 100;
+    cap = 200 / BRIGHTNESS_DIVIDER;
     return true;
   }
 }
