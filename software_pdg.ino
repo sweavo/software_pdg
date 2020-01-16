@@ -52,7 +52,7 @@
 #define DURATION_SCORE_BAD 150
 
 // Tuning values for the game
-#define ERROR_PERCENT 10
+#define ERROR_PERCENT 0
 #define STRIDE 6
 #define DELAY_STEP 20
 #define GAME_TIMEOUT_TICKS (5000/DELAY_STEP)
@@ -90,11 +90,7 @@ Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
-  if ( successful[posn] ) {
-    strip.setPixelColor( posn, COLOR_WORKPACKAGE_OK);
-  } else {
-    strip.setPixelColor( posn, COLOR_WORKPACKAGE_FAIL );
-  }
+  strip.setPixelColor( posn, successful[posn] ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
 }
 
 void extinguish_led( int posn ) {
@@ -176,9 +172,11 @@ bool score_animation_done() {
     beep( PITCH_SCORE_BAD, DURATION_SCORE_BAD );
     finally_perfect = false;
   }
-
-  light_led( i );
+  
+  strip.setPixelColor( i, finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  //light_led( i );
   delay(10);
+  
   if (++i > LED_COUNT )
   {
     i = 0;
