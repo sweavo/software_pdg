@@ -7,7 +7,7 @@
 
 // Attach something with WS2812 to this pin
 #define STRIP_PIN 11
-#define LED_COUNT 10
+#define LED_COUNT 30
 
 // Pushbutton to play the game.  If active high, then
 // set BUTTON_ACTIVE_LOW to 0 and deal with pulldown as
@@ -54,7 +54,8 @@
 #define DURATION_SCORE_BAD 150
 
 // Tuning values for the game
-#define ERROR_PERCENT 0
+#define ERROR_PERCENT 5
+
 #define STRIDE 6
 #define DELAY_STEP 20
 #define GAME_TIMEOUT_TICKS (5000/DELAY_STEP)
@@ -182,21 +183,13 @@ void play_melody( int pin, int period, const struct note_t melody[]) {
 bool score_animation_done() {
   if (animation_index == 1) {
     finally_perfect = true;
-    Serial.write("I");
   }
-  Serial.write("[");
-  Serial.print(animation_index );
-  Serial.write("]=");
-  Serial.print(successful[animation_index ]);
-  Serial.write("; (");
-  Serial.print(finally_perfect);
-  Serial.write("); ");
   strip.setPixelColor( animation_index , COLOR_WHITE );
   strip.show();
-  delay(40);
+  delay(10);
   strip.setPixelColor( animation_index , COLOR_BLACK);
   strip.show();
-  delay(40);
+  delay(10);
   if ( !successful[animation_index ] )
   {
     beep( PITCH_SCORE_BAD, DURATION_SCORE_BAD );
