@@ -196,8 +196,8 @@ bool score_animation_done() {
     finally_perfect = false;
   }
 
-  strip.setPixelColor( animation_index , finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
-  //light_led( animation_index  );
+  //strip.setPixelColor( animation_index , finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  light_led( animation_index  );
   delay(10);
 
   if (++animation_index  > LED_COUNT )
