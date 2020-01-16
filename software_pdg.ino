@@ -4,18 +4,18 @@
 // Commissioning parameters
 
 // Attach something with WS2812 to this pin
-#define STRIP_PIN 4
-#define LED_COUNT 30
+#define STRIP_PIN 11
+#define LED_COUNT 60
 
 // Pushbutton to play the game.  If active high, then
 // set BUTTON_ACTIVE_LOW to 0 and deal with pulldown as
 // you need to.  If active low, then setup() will activate
 // the input's builtin pullup resistor.
-#define BUTTON_PIN 10
+#define BUTTON_PIN 13
 #define BUTTON_ACTIVE_LOW 1
 
 // Attach a piezo speaker between this pin and GND.
-#define PIEZO_PIN 9
+#define PIEZO_PIN 12
 
 // This is a diagnostic pin
 #define LED_PIN   LED_BUILTIN
