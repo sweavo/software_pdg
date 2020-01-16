@@ -262,9 +262,9 @@ void loop() {
       break;
     case GAME_PLAYTUNE:
       if ( finally_perfect )
-        play_melody( PIEZO_PIN, 800, VICTORY );
+        play_melody( PIEZO_PIN, 400, VICTORY );
       else
-        play_melody( PIEZO_PIN, 800, START );
+        play_melody( PIEZO_PIN, 600, FAIL );
       game_state = GAME_RESET;
       break;
 
