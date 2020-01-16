@@ -1,11 +1,13 @@
 #include <Adafruit_NeoPixel.h>
+#include "pitches.h"
+#include "tunes.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 // Commissioning parameters
 
 // Attach something with WS2812 to this pin
 #define STRIP_PIN 11
-#define LED_COUNT 60
+#define LED_COUNT 10
 
 // Pushbutton to play the game.  If active high, then
 // set BUTTON_ACTIVE_LOW to 0 and deal with pulldown as
@@ -65,7 +67,8 @@ typedef uint8_t GameState_t;
 #define GAME_WAIT ((GameState_t)0)
 #define GAME_RUN ((GameState_t)1)
 #define GAME_SCORE ((GameState_t)2)
-#define GAME_RESET ((GameState_t)3)
+#define GAME_PLAYTUNE ((GameState_t)3)
+#define GAME_RESET ((GameState_t)4)
 
 GameState_t game_state = GAME_WAIT;
 
@@ -85,6 +88,7 @@ bool random_bit() {
   return random(100) >= ERROR_PERCENT;
 }
 
+uint8_t animation_index = 0;
 
 Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -109,6 +113,7 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT);
 #endif
   pinMode(PIEZO_PIN, OUTPUT);
+  Serial.begin(115200);
 }
 
 GameState_t game_raster() {
@@ -156,30 +161,55 @@ GameState_t game_raster() {
   return GAME_RUN;
 }
 
-bool score_animation_done() {
-  static uint8_t i = 0;
-  if (!i) {
-    finally_perfect = true;
+void play_melody( int pin, int period, const struct note_t melody[]) {
+  // iterate over the notes of the melody:
+  for (int thisNote = 0; melody[thisNote].value; thisNote++) {
+
+    // to calculate the note duration, take one second
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = period / melody[thisNote].value;
+    tone(pin, PITCHES[melody[thisNote].index], noteDuration);
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // stop the tone playing:
+    noTone(pin);
   }
-  strip.setPixelColor( i, COLOR_WHITE );
+}
+
+bool score_animation_done() {
+  if (animation_index == 1) {
+    finally_perfect = true;
+    Serial.write("I");
+  }
+  Serial.write("[");
+  Serial.print(animation_index );
+  Serial.write("]=");
+  Serial.print(successful[animation_index ]);
+  Serial.write("; (");
+  Serial.print(finally_perfect);
+  Serial.write("); ");
+  strip.setPixelColor( animation_index , COLOR_WHITE );
   strip.show();
-  delay(10);
-  strip.setPixelColor( i, COLOR_BLACK);
+  delay(40);
+  strip.setPixelColor( animation_index , COLOR_BLACK);
   strip.show();
-  delay(10);
-  if ( !successful[i] )
+  delay(40);
+  if ( !successful[animation_index ] )
   {
     beep( PITCH_SCORE_BAD, DURATION_SCORE_BAD );
     finally_perfect = false;
   }
-  
-  strip.setPixelColor( i, finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
-  //light_led( i );
+
+  strip.setPixelColor( animation_index , finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  //light_led( animation_index  );
   delay(10);
-  
-  if (++i > LED_COUNT )
+
+  if (++animation_index  > LED_COUNT )
   {
-    i = 0;
+    animation_index  = 0;
     return true;
   }
   return false;
@@ -227,8 +257,15 @@ void loop() {
 
     case GAME_SCORE:
       if ( score_animation_done() ) {
-        game_state = GAME_RESET;
+        game_state = GAME_PLAYTUNE;
       }
+      break;
+    case GAME_PLAYTUNE:
+      if ( finally_perfect )
+        play_melody( PIEZO_PIN, 800, VICTORY );
+      else
+        play_melody( PIEZO_PIN, 800, START );
+      game_state = GAME_RESET;
       break;
 
     case GAME_RESET:
@@ -246,12 +283,10 @@ bool game_reset() {
                          min( cap, 83 / BRIGHTNESS_DIVIDER),
                          min( cap, 158 / BRIGHTNESS_DIVIDER));
   } else {
-    color = strip.Color( min( cap, 80 / BRIGHTNESS_DIVIDER),
-                         min( cap, 0 / BRIGHTNESS_DIVIDER),
-                         min( cap, 0 / BRIGHTNESS_DIVIDER));
+    color = strip.Color( min( cap, 80 / BRIGHTNESS_DIVIDER), 0, 0   );
   }
 
-  strip.fill( color, 0, player_pos+1);
+  strip.fill( color, 0, player_pos + 1);
   strip.show();
   delay(DELAY_STEP / 2);
   if (--cap)
