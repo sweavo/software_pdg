@@ -54,7 +54,7 @@
 #define DURATION_SCORE_BAD 150
 
 // Tuning values for the game
-#define ERROR_PERCENT 5
+#define ERROR_PERCENT 10
 
 #define STRIDE 6
 #define DELAY_STEP 20
