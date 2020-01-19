@@ -91,21 +91,21 @@ bool random_bit() {
 
 uint8_t animation_index = 0;
 
-Adafruit_NeoPixel strip(LED_COUNT, STRIP_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip(LED_COUNT + 1, STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
 void light_led( int posn ) {
   // light the LED in position posn according to its successful status.
-  strip.setPixelColor( posn, successful[posn] ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  strip.setPixelColor( posn + 1, successful[posn] ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
 }
 
 void extinguish_led( int posn ) {
-  strip.setPixelColor( posn, COLOR_BLACK );
+  strip.setPixelColor( posn + 1, COLOR_BLACK );
 }
 
 void setup() {
   randomSeed(analogRead(5)); // randomize using noise from analog pin 5
   strip.begin();
-  strip.fill(COLOR_RESET, 0, LED_COUNT);
+  strip.fill(COLOR_RESET, 0, LED_COUNT + 1);
   strip.show();
   pinMode(LED_PIN, OUTPUT);
 #if BUTTON_ACTIVE_LOW==1
@@ -124,7 +124,7 @@ GameState_t game_raster() {
     timeout = 0;
     key_pressed = false;
     committed = player_pos;
-    if (committed >= LED_COUNT - 1 )
+    if (committed > LED_COUNT - 1 )
     {
       timeout = 0;
       return GAME_SCORE;
@@ -184,10 +184,10 @@ bool score_animation_done() {
   if (animation_index == 1) {
     finally_perfect = true;
   }
-  strip.setPixelColor( animation_index , COLOR_WHITE );
+  strip.setPixelColor( animation_index + 1, COLOR_WHITE );
   strip.show();
   delay(10);
-  strip.setPixelColor( animation_index , COLOR_BLACK);
+  strip.setPixelColor( animation_index + 1, COLOR_BLACK);
   strip.show();
   delay(10);
   if ( !successful[animation_index ] )
@@ -196,7 +196,7 @@ bool score_animation_done() {
     finally_perfect = false;
   }
 
-  //strip.setPixelColor( animation_index , finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
+  //strip.setPixelColor( animation_index +1, finally_perfect ? COLOR_WORKPACKAGE_OK : COLOR_WORKPACKAGE_FAIL );
   light_led( animation_index  );
   delay(10);
 
@@ -237,7 +237,7 @@ void loop() {
   switch ( game_state )
   {
     case GAME_WAIT:
-      strip.fill(COLOR_RESET, 0, LED_COUNT);
+      strip.fill(COLOR_RESET, 0, LED_COUNT + 1);
       if ( key_pressed ) {
         key_pressed = false;
         game_state = GAME_RUN;
@@ -279,7 +279,7 @@ bool game_reset() {
     color = strip.Color( min( cap, 80 / BRIGHTNESS_DIVIDER), 0, 0   );
   }
 
-  strip.fill( color, 0, player_pos + 1);
+  strip.fill( color, 1, player_pos + 1);
   strip.show();
   delay(DELAY_STEP / 2);
   if (--cap)
@@ -288,8 +288,9 @@ bool game_reset() {
   }
   else
   {
-    strip.fill( COLOR_RESET, 0, LED_COUNT );
-    strip.show();    key_pressed = false;
+    strip.fill( COLOR_RESET, 1, LED_COUNT + 1 );
+    strip.show();
+    key_pressed = false;
     committed = 0;
     player_pos = -1;
     player_dir = 1;
