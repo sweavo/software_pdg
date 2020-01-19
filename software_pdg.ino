@@ -124,7 +124,7 @@ GameState_t game_raster() {
     timeout = 0;
     key_pressed = false;
     committed = player_pos;
-    if (committed > LED_COUNT - 1 )
+    if (committed >= LED_COUNT - 1 )
     {
       timeout = 0;
       return GAME_SCORE;
